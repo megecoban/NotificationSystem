@@ -92,7 +92,6 @@ public class NotiItemSettings : MonoBehaviour
     public void AddHeight(float height, float time = 0.25f)
     {
         height = Mathf.Abs(height);
-        isRaise = true;
         StartCoroutine(Rise(height, time));
     }
 
