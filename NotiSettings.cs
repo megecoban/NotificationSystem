@@ -19,7 +19,8 @@ public class NotiSettings : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private notiPanelAllignment panelAllignment;
-    [SerializeField] [Range(1f,6f)] private int maxNotiItemSameTime = 3;
+    [SerializeField][Range(1f, 6f)] private int maxNotiItemSameTime = 3;
+    [SerializeField][Range(0.0001f, 6f)] private float notiItemRiseSeconds = 0.25f;
 
     [Space(16)]
     [Header("Noti Item")]
@@ -38,6 +39,7 @@ public class NotiSettings : MonoBehaviour
     [SerializeField][Range(0, 50f)] private float spacingX = 20f;
     [SerializeField][Range(0, 50f)] private float spacingY = 20f;
     [SerializeField][Range(0, 50f)] private float spacingEachother = 10f;
+    [SerializeField] private TMPro.TextAlignmentOptions textAlignment = TMPro.TextAlignmentOptions.MidlineLeft;
 
     private List<RectTransform> notiItemPanels = new List<RectTransform>();
     private List<NotiItemSettings> notiItemSettings = new List<NotiItemSettings>();
@@ -65,13 +67,13 @@ public class NotiSettings : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.A))
+        if (Input.GetKeyDown(KeyCode.A))
         {
             CreateNewNoti("Test " + Random.Range(0, 77f).ToString());
         }
@@ -99,7 +101,7 @@ public class NotiSettings : MonoBehaviour
         for (int i = 0; i < notiItemSettings.Count; i++)
         {
             int k = notiItemSettings.Count - i;
-            notiItemSettings[i].SetHeight( ((line*fontSize) * k) + (spacingEachother * (k)) + spacingY);
+            notiItemSettings[i].SetHeight(((line * fontSize) * k) + (spacingEachother * (k)) + spacingY, notiItemRiseSeconds);
         }
 
         RectTransform newNotiItem = Instantiate(notiItemPanel, notiCanvas.transform);
@@ -113,15 +115,15 @@ public class NotiSettings : MonoBehaviour
         notiItemPanels.Add(newNotiItem);
         notiItemSettings.Add(newNotiItem.GetComponent<NotiItemSettings>());
 
-        newNotiItem.GetComponent<NotiItemSettings>().Init(this, notiText, panelColor, textColor, fontSize, width, line, marginX, marginY, lifetimeDuartion);
+        newNotiItem.GetComponent<NotiItemSettings>().Init(this, notiText, panelColor, textColor, fontSize, width, line, marginX, marginY, lifetimeDuartion, textAlignment);
 
     }
 
     public void DestroyThisNotiItem(RectTransform notiRect)
     {
-        for(int i = 0; i < notiItemPanels.Count; ++i)
+        for (int i = 0; i < notiItemPanels.Count; ++i)
         {
-            if (notiItemPanels[i] ==  notiRect)
+            if (notiItemPanels[i] == notiRect)
             {
                 notiItemPanels.RemoveAt(i);
                 notiItemSettings.RemoveAt(i);
@@ -131,9 +133,9 @@ public class NotiSettings : MonoBehaviour
 
     private void CheckDestroyed()
     {
-        if(notiItemPanels.Count > 0)
+        if (notiItemPanels.Count > 0)
         {
-            for(int i = notiItemPanels.Count-1; i > -1; i--)
+            for (int i = notiItemPanels.Count - 1; i > -1; i--)
             {
                 if (notiItemPanels[i] == null)
                 {

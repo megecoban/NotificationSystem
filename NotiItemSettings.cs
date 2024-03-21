@@ -23,6 +23,7 @@ public class NotiItemSettings : MonoBehaviour
     [Range(0f, 20f)] private float marginY = 5f;
     [Range(0f, 20f)] private float marginX = 15f;
     [Range(100f, 550f)] private float width = 400f;
+    [SerializeField] private TMPro.TextAlignmentOptions textAlignment = TMPro.TextAlignmentOptions.MidlineLeft;
 
 
     private void Awake()
@@ -36,7 +37,7 @@ public class NotiItemSettings : MonoBehaviour
         notiPanel.rectTransform.sizeDelta = new Vector2(width + (marginX * 2f), (fontSize * line) + (marginY * 2f));
     }
 
-    private void Setting(Color panelColor, Color textColor, float fontSize, float width, int line, float marginX, float marginY)
+    private void Setting(Color panelColor, Color textColor, float fontSize, float width, int line, float marginX, float marginY, TMPro.TextAlignmentOptions textAlignment = TMPro.TextAlignmentOptions.MidlineLeft)
     {
         this.panelColor = panelColor;
         this.textColor = textColor;
@@ -45,6 +46,7 @@ public class NotiItemSettings : MonoBehaviour
         this.marginY = marginY;
         this.width = width;
         this.line = line;
+        this.textAlignment = textAlignment;
 
         notiPanel.color = panelColor;
         notiTextArea.color = textColor;
@@ -53,13 +55,15 @@ public class NotiItemSettings : MonoBehaviour
 
         notiTextArea.rectTransform.sizeDelta = new Vector2(width, fontSize * line);
         notiPanel.rectTransform.sizeDelta = new Vector2(width + (marginX * 2f), (fontSize * line) + (marginY * 2f));
+
+        notiTextArea.alignment = textAlignment;
     }
 
-    public void Init(NotiSettings nS, string text, Color panelColor, Color textColor, float fontSize, float width, int line, float marginX, float marginY, float lifetimeTimer = 2.5f)
+    public void Init(NotiSettings nS, string text, Color panelColor, Color textColor, float fontSize, float width, int line, float marginX, float marginY, float lifetimeTimer = 2.5f, TMPro.TextAlignmentOptions textAlignment = TMPro.TextAlignmentOptions.MidlineLeft)
     {
         notiBaseSettings = nS;
 
-        Setting(panelColor, textColor, fontSize, width, line, marginX, marginY);
+        Setting(panelColor, textColor, fontSize, width, line, marginX, marginY, textAlignment);
 
         if (this.gameObject.activeSelf == false || this.gameObject.activeInHierarchy == false)
             this.gameObject.SetActive(true);
@@ -74,11 +78,11 @@ public class NotiItemSettings : MonoBehaviour
     {
         float lifetime = Mathf.Abs(lifetimeDuration);
 
-        while (lifetime>=0f)
+        while (lifetime >= 0f)
         {
             lifetime -= Time.deltaTime;
 
-            if(lifetime <= 0f)
+            if (lifetime <= 0f)
             {
                 break;
             }
