@@ -24,7 +24,6 @@ public class NotiItemSettings : MonoBehaviour
     [Range(0f, 20f)] private float marginX = 15f;
     [Range(100f, 550f)] private float width = 400f;
 
-    private bool isRaise = false;
 
     private void Awake()
     {
@@ -94,15 +93,16 @@ public class NotiItemSettings : MonoBehaviour
     {
         height = Mathf.Abs(height);
         isRaise = true;
-        StartCoroutine(Raise(height, time));
+        StartCoroutine(Rise(height, time));
     }
+
     public void SetHeight(float newHeight, float time = 0.25f)
     {
         newHeight = Mathf.Abs(newHeight);
-        StartCoroutine(Raise(newHeight, time));
+        StartCoroutine(Rise(newHeight, time));
     }
 
-    IEnumerator Raise(float newHeight, float maxTime = 0.25f)
+    IEnumerator Rise(float newHeight, float maxTime = 0.25f)
     {
         float elapsedTime = 0;
         Vector2 startPos = notiPanel.rectTransform.anchoredPosition;
