@@ -19,12 +19,15 @@ public class NotiSettings : MonoBehaviour
 
     [Header("Settings")]
     [SerializeField] private notiPanelAllignment panelAllignment;
-    [SerializeField][Range(1f, 6f)] private int maxNotiItemSameTime = 3;
+    [SerializeField][Range(1f, 60f)] private int maxNotiItemSameTime = 3;
     [SerializeField][Range(0.0001f, 6f)] private float notiItemRiseSeconds = 0.25f;
 
     [Space(16)]
     [Header("Noti Item")]
     [Space(8)]
+
+    [Header("Noti Item Parent")]
+    [SerializeField]private RectTransform notiParent;
 
     [Header("Noti Item Color Settings")]
     [SerializeField] private Color panelColor = new Color(0f, 0f, 0f, 0.8f);
@@ -67,13 +70,13 @@ public class NotiSettings : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.A))
+        if(Input.GetKeyDown(KeyCode.A))
         {
             CreateNewNoti("Test " + Random.Range(0, 77f).ToString());
         }
@@ -101,10 +104,15 @@ public class NotiSettings : MonoBehaviour
         for (int i = 0; i < notiItemSettings.Count; i++)
         {
             int k = notiItemSettings.Count - i;
-            notiItemSettings[i].SetHeight(((line * fontSize) * k) + (spacingEachother * (k)) + spacingY, notiItemRiseSeconds);
+            notiItemSettings[i].SetHeight( ((line*fontSize) * k) + (spacingEachother * (k)) + spacingY, notiItemRiseSeconds);
         }
 
         RectTransform newNotiItem = Instantiate(notiItemPanel, notiCanvas.transform);
+
+        if(notiParent != null)
+        {
+            newNotiItem.parent = notiParent;
+        }
 
         // Noti Item Panel Setting
         newNotiItem.anchorMin = (panelAllignment == notiPanelAllignment.Right) ? new Vector2(1f, 0) : new Vector2(0, 0);
@@ -121,9 +129,9 @@ public class NotiSettings : MonoBehaviour
 
     public void DestroyThisNotiItem(RectTransform notiRect)
     {
-        for (int i = 0; i < notiItemPanels.Count; ++i)
+        for(int i = 0; i < notiItemPanels.Count; ++i)
         {
-            if (notiItemPanels[i] == notiRect)
+            if (notiItemPanels[i] ==  notiRect)
             {
                 notiItemPanels.RemoveAt(i);
                 notiItemSettings.RemoveAt(i);
@@ -133,9 +141,9 @@ public class NotiSettings : MonoBehaviour
 
     private void CheckDestroyed()
     {
-        if (notiItemPanels.Count > 0)
+        if(notiItemPanels.Count > 0)
         {
-            for (int i = notiItemPanels.Count - 1; i > -1; i--)
+            for(int i = notiItemPanels.Count-1; i > -1; i--)
             {
                 if (notiItemPanels[i] == null)
                 {
