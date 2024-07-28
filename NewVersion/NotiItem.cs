@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
@@ -19,45 +20,70 @@ public class NotiItem: MonoBehaviour, ISubject
     [SerializeField] private NotiManager notiManager;
 
     [Header("Assignments")]
-    [SerializeField] private Image notiPanel;
+    [SerializeField] private Image notiTextBackgroundPanel;
     [SerializeField] private TextMeshProUGUI notiTextArea;
+    [SerializeField] private RectTransform notiTextAreaRectTransform;
 
     private NotiPhase coroutineNotiPhase = NotiPhase.Show;
 
     // SETS
 
-    public void Set(NotiManager notiManager, string text, float lineHeight = 48f, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle, float showTime = 0.15f, float hideTime = 0.15f, float lifeTime = 2.5f)
+    public void Init(NotiManager notiManager)
     {
         this.notiManager = notiManager;
 
-        notiPanel = this.GetComponent<Image>();
-        notiTextArea = this.transform.GetChild(0).GetComponent<TextMeshProUGUI>();
-        notiPanel.rectTransform.sizeDelta = new Vector2(notiPanel.rectTransform.parent.GetComponent<RectTransform>().sizeDelta.x, lineHeight);
+        notiTextBackgroundPanel = this.GetComponent<Image>();
 
+        notiTextArea = notiTextBackgroundPanel.GetComponentInChildren<TextMeshProUGUI>();
+
+        notiTextAreaRectTransform = notiTextArea.rectTransform;
+
+        notiTextAreaRectTransform.localScale = Vector3.one;
+    }
+
+    public void InitCoroutine(float showTime = 0.15f, float hideTime = 0.15f, float lifeTime = 2.5f)
+    {
         StartCoroutine(Show(showTime, () =>
         {
             StartCoroutine(LifeTime(lifeTime, () => { Remove(hideTime); }));
         }));
-
-        Color backgroundColor = new Color(0f, 0f, 0f, 0f);
-        Color whiteColor = new Color(1f, 1f, 1f, 1f);
-
-        SetPanel(backgroundColor);
-        SetText(text, whiteColor, fontSizeMin, fontSizeMax, horizontalAlignment, verticalAlignment);
     }
 
-    public void SetPanel(Color backgroundColor)
+    public void Set(NotiManager notiManager, string text, float paddingX = 0f, float paddingY = 0f, float marginX = 0f, float lineHeight = 48f, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle, float showTime = 0.15f, float hideTime = 0.15f, float lifeTime = 2.5f)
     {
-        notiPanel.color = backgroundColor;
+        Color backgroundColor = new Color(0f, 0f, 0f, 0f);
+        Color textColor = new Color(1f, 1f, 1f, 1f);
+
+        Set(notiManager, text, textColor, backgroundColor, paddingX, paddingY, marginX, lineHeight, fontSizeMin, fontSizeMax, horizontalAlignment, verticalAlignment, showTime, hideTime, lifeTime);
     }
 
-    public void SetText(string text, Color textColor, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle)
+    public void Set(NotiManager notiManager, string text, Color textColor, Color backgroundColor, float paddingX = 0f, float paddingY = 0f, float marginX = 0f, float lineHeight = 48f, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle, float showTime = 0.15f, float hideTime = 0.15f, float lifeTime = 2.5f)
+    {
+        Init(notiManager);
+
+        SetPanel(backgroundColor, marginX, lineHeight);
+        SetText(text, textColor, paddingX, paddingY, fontSizeMin, fontSizeMax, horizontalAlignment, verticalAlignment);
+
+        InitCoroutine(showTime, hideTime, lifeTime);
+    }
+
+    public void SetPanel(Color backgroundColor, float marginX, float lineHeight)
+    {
+        notiTextBackgroundPanel.color = backgroundColor;
+        notiTextBackgroundPanel.rectTransform.sizeDelta = new Vector2(notiTextBackgroundPanel.rectTransform.parent.GetComponent<RectTransform>().sizeDelta.x - marginX, lineHeight);
+    }
+
+    public void SetText(string text, Color textColor, float paddingX, float paddingY, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle)
     {
         notiTextArea.text = text;
         notiTextArea.color = textColor;
-        notiTextArea.horizontalAlignment = HorizontalAlignmentOptions.Center;
-        notiTextArea.verticalAlignment = VerticalAlignmentOptions.Middle;
+
+        notiTextArea.rectTransform.sizeDelta = new Vector2(notiTextBackgroundPanel.rectTransform.sizeDelta.x,
+            notiTextBackgroundPanel.rectTransform.sizeDelta.y);
+
         notiTextArea.autoSizeTextContainer = true;
+        notiTextArea.horizontalAlignment = horizontalAlignment;
+        notiTextArea.verticalAlignment = verticalAlignment;
         notiTextArea.fontSizeMin = 18f;
         notiTextArea.fontSizeMax = 22f;
     }
@@ -94,9 +120,9 @@ public class NotiItem: MonoBehaviour, ISubject
     IEnumerator Show(float showTime = 0.15f, UnityAction afterAction = null)
     {
         coroutineNotiPhase = NotiPhase.Show;
-        Debug.Log("Show ");
+
         float timer = showTime;
-        float panelChannelA = notiPanel.color.a;
+        float panelChannelA = notiTextBackgroundPanel.color.a;
         float textChannelA = notiTextArea.color.a;
 
 
@@ -107,13 +133,13 @@ public class NotiItem: MonoBehaviour, ISubject
             float tempPanelA = Mathf.Lerp(panelChannelA, 0f, timer / showTime);
             float tempTextA = Mathf.Lerp(textChannelA, 0f, timer / showTime);
 
-            notiPanel.color = new Color(notiPanel.color.r, notiPanel.color.g, notiPanel.color.b, tempPanelA);
+            notiTextBackgroundPanel.color = new Color(notiTextBackgroundPanel.color.r, notiTextBackgroundPanel.color.g, notiTextBackgroundPanel.color.b, tempPanelA);
             notiTextArea.color = new Color(notiTextArea.color.r, notiTextArea.color.g, notiTextArea.color.b, tempTextA);
 
             yield return null;
         }
 
-        notiPanel.color = new Color(notiPanel.color.r, notiPanel.color.g, notiPanel.color.b, panelChannelA);
+        notiTextBackgroundPanel.color = new Color(notiTextBackgroundPanel.color.r, notiTextBackgroundPanel.color.g, notiTextBackgroundPanel.color.b, panelChannelA);
         notiTextArea.color = new Color(notiTextArea.color.r, notiTextArea.color.g, notiTextArea.color.b, textChannelA);
 
         if (afterAction != null)
@@ -126,9 +152,6 @@ public class NotiItem: MonoBehaviour, ISubject
     {
         coroutineNotiPhase = NotiPhase.Life;
         float timer = 0f;
-
-        Debug.Log("Life ");
-
 
         while (timer < lifeTime)
         {
@@ -145,9 +168,9 @@ public class NotiItem: MonoBehaviour, ISubject
     IEnumerator Hide(float hideTime = 0.15f, UnityAction afterAction = null)
     {
         coroutineNotiPhase = NotiPhase.Hide;
-        Debug.Log("Hide ");
+
         float timer = hideTime;
-        float panelChannelA = notiPanel.color.a;
+        float panelChannelA = notiTextBackgroundPanel.color.a;
         float textChannelA = notiTextArea.color.a;
 
         while (timer>0f)
@@ -157,13 +180,13 @@ public class NotiItem: MonoBehaviour, ISubject
             float tempPanelA = Mathf.Lerp(0f, panelChannelA, timer / hideTime);
             float tempTextA = Mathf.Lerp(0f, textChannelA, timer / hideTime);
 
-            notiPanel.color = new Color(notiPanel.color.r, notiPanel.color.g, notiPanel.color.b, tempPanelA);
+            notiTextBackgroundPanel.color = new Color(notiTextBackgroundPanel.color.r, notiTextBackgroundPanel.color.g, notiTextBackgroundPanel.color.b, tempPanelA);
             notiTextArea.color = new Color(notiTextArea.color.r, notiTextArea.color.g, notiTextArea.color.b, tempTextA);
 
             yield return null;
         }
 
-        notiPanel.color = new Color(notiPanel.color.r, notiPanel.color.g, notiPanel.color.b, 0f);
+        notiTextBackgroundPanel.color = new Color(notiTextBackgroundPanel.color.r, notiTextBackgroundPanel.color.g, notiTextBackgroundPanel.color.b, 0f);
         notiTextArea.color = new Color(notiTextArea.color.r, notiTextArea.color.g, notiTextArea.color.b, 0f);
 
         if(afterAction!=null)
@@ -178,21 +201,22 @@ public class NotiItem: MonoBehaviour, ISubject
 
         while(timer<riseTime)
         {
-            notiPanel.rectTransform.anchoredPosition = Vector2.Lerp(notiPanel.rectTransform.anchoredPosition,
-                new Vector2(notiPanel.rectTransform.anchoredPosition.x, newPosY)
+            notiTextBackgroundPanel.rectTransform.anchoredPosition = Vector2.Lerp(notiTextBackgroundPanel.rectTransform.anchoredPosition,
+                new Vector2(notiTextBackgroundPanel.rectTransform.anchoredPosition.x, newPosY)
                 , timer/riseTime);
 
             timer += Time.deltaTime;
 
             yield return null;
         }
-        notiPanel.rectTransform.anchoredPosition = new Vector2(notiPanel.rectTransform.anchoredPosition.x, newPosY);
+
+        notiTextBackgroundPanel.rectTransform.anchoredPosition = new Vector2(notiTextBackgroundPanel.rectTransform.anchoredPosition.x, newPosY);
     }
 
     public void SetNewPosY(float newPosY, float riseTime = 0.1f)
     {
         Debug.Log("New Pos Y: " + newPosY);
-        if(newPosY == notiPanel.rectTransform.anchoredPosition.y) { return; }
+        if(newPosY == notiTextBackgroundPanel.rectTransform.anchoredPosition.y) { return; }
         StopCoroutine("Rise");
         StartCoroutine(Rise(newPosY, riseTime));
     }

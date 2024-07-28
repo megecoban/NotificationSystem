@@ -226,3 +226,4 @@ MonoBehaviour:
   notiManager: {fileID: 0}
   notiPanel: {fileID: 0}
   notiTextArea: {fileID: 0}
+  notiTextAreaRectTransform: {fileID: 0}

@@ -14,14 +14,28 @@ public class NotiManager : MonoBehaviour, IObserver
 
     [Header("Settings")]
     [SerializeField][Range(1f, 60f)] private int maxNotiItemSameTime = 3;
-    [SerializeField][Range(0.0001f, 6f)] private float notiItemLifeTimeSeconds = 2.75f;
+    [SerializeField][Range(0.0001f, 100f)] private float notiItemLifeTimeSeconds = 2.75f;
     [SerializeField][Range(0.0001f, 6f)] private float notiItemShowSeconds = 0.15f;
     [SerializeField][Range(0.0001f, 6f)] private float notiItemHideSeconds = 0.15f;
     [SerializeField][Range(0.0001f, 6f)] private float notiItemRiseSeconds = 0.1f;
     [SerializeField][Range(0.0001f, 1080f)] private float notiItemPanelLineHeight = 48f;
+
+    [Header("Text Margins And Paddings")]
+    [SerializeField][Range(0f, 1080f)] private float notiItemMarginY = 20f;
+    [SerializeField][Range(0f, 1080f)] private float notiItemMarginX = 20f;
     [SerializeField][Range(0f, 1080f)] private float notiItemPaddingY = 20f;
+    [SerializeField][Range(0f, 1080f)] private float notiItemPaddingX = 20f;
+
+    [Header("Text Alignments")]
+    [SerializeField] private HorizontalAlignmentOptions textHorizontalAlignment = HorizontalAlignmentOptions.Center;
+    [SerializeField] private VerticalAlignmentOptions textVerticalAlignment = VerticalAlignmentOptions.Middle;
+
+    [Header("Text Colors")]
+    [SerializeField] private Color textColor = new Color(1f, 1f, 1f, 1f);
+    [SerializeField] private Color backgroundColor = new Color(0f, 0f, 0f, 0.75f);
 
     private List<NotiItem> notiItems = new List<NotiItem>();
+    [Header("Debug")]
     public int counts = 0; //Just For Debug
 
 
@@ -31,7 +45,7 @@ public class NotiManager : MonoBehaviour, IObserver
         counts = notiItems.Count;
         if (Input.GetKeyDown(KeyCode.A))
         {
-            CreateNewNoti("Test " + Random.Range(0, 100), 3f);
+            CreateNewNoti("Test " + Random.Range(0, 100), notiItemLifeTimeSeconds);
         }
     }
 
@@ -39,13 +53,13 @@ public class NotiManager : MonoBehaviour, IObserver
     {
         CheckNotiSizeAndClear();
 
-        RectTransform newItem = Instantiate(notiItemPrefab, notiPanel);
+        RectTransform newItem = Instantiate(notiItemPrefab, notiPanel.transform, false);
 
         NotiItem newNotiItem = newItem.GetComponent<NotiItem>();
 
         notiItems.Add(newNotiItem);
 
-        newNotiItem.Set(this, text, lineHeight: notiItemPanelLineHeight, lifeTime: lifeTime, showTime: notiItemShowSeconds, hideTime: notiItemHideSeconds);
+        newNotiItem.Set(this, text, textColor: textColor, paddingX: notiItemPaddingX, paddingY: notiItemPaddingY, backgroundColor: backgroundColor, horizontalAlignment: textHorizontalAlignment, marginX: notiItemMarginX, verticalAlignment: textVerticalAlignment, lineHeight: notiItemPanelLineHeight, lifeTime: lifeTime, showTime: notiItemShowSeconds, hideTime: notiItemHideSeconds);
 
         SetAllPos();
     }
@@ -57,7 +71,7 @@ public class NotiManager : MonoBehaviour, IObserver
             int val = notiItems.Count - 1 - i;
             if (notiItems[val] != null)
             {
-                notiItems[val]?.SetNewPosY(i * (notiItemPanelLineHeight + notiItemPaddingY), notiItemRiseSeconds);
+                notiItems[val]?.SetNewPosY(i * (notiItemPanelLineHeight + notiItemMarginY), notiItemRiseSeconds);
             }
         }
     }
