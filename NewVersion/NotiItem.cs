@@ -16,6 +16,15 @@ public class NotiItem: MonoBehaviour, ISubject
         None
     }
 
+    public enum NotiSnap
+    {
+        None,
+        Top,
+        Bottom,
+        Left,
+        Right
+    }
+
     [Header("Requirements")]
     [SerializeField] private NotiManager notiManager;
 
@@ -23,6 +32,9 @@ public class NotiItem: MonoBehaviour, ISubject
     [SerializeField] private Image notiTextBackgroundPanel;
     [SerializeField] private TextMeshProUGUI notiTextArea;
     [SerializeField] private RectTransform notiTextAreaRectTransform;
+
+    [Header("Settings")]
+    [SerializeField] private NotiSnap notiSnap = NotiSnap.None;
 
     private NotiPhase coroutineNotiPhase = NotiPhase.Show;
 
@@ -49,28 +61,37 @@ public class NotiItem: MonoBehaviour, ISubject
         }));
     }
 
-    public void Set(NotiManager notiManager, string text, float paddingX = 0f, float paddingY = 0f, float marginX = 0f, float lineHeight = 48f, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle, float showTime = 0.15f, float hideTime = 0.15f, float lifeTime = 2.5f)
+    public void Set(NotiManager notiManager, string text, float paddingX = 0f, float paddingY = 0f, float marginX = 0f, float lineHeight = 48f, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle, float showTime = 0.15f, float hideTime = 0.15f, float lifeTime = 2.5f, NotiSnap snap = NotiSnap.None)
     {
         Color backgroundColor = new Color(0f, 0f, 0f, 0f);
         Color textColor = new Color(1f, 1f, 1f, 1f);
 
-        Set(notiManager, text, textColor, backgroundColor, paddingX, paddingY, marginX, lineHeight, fontSizeMin, fontSizeMax, horizontalAlignment, verticalAlignment, showTime, hideTime, lifeTime);
+        Set(notiManager, text, textColor, backgroundColor, paddingX, paddingY, marginX, lineHeight, fontSizeMin, fontSizeMax, horizontalAlignment, verticalAlignment, showTime, hideTime, lifeTime, snap);
     }
 
-    public void Set(NotiManager notiManager, string text, Color textColor, Color backgroundColor, float paddingX = 0f, float paddingY = 0f, float marginX = 0f, float lineHeight = 48f, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle, float showTime = 0.15f, float hideTime = 0.15f, float lifeTime = 2.5f)
+    public void Set(NotiManager notiManager, string text, Color textColor, Color backgroundColor, float paddingX = 0f, float paddingY = 0f, float marginX = 0f, float lineHeight = 48f, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle, float showTime = 0.15f, float hideTime = 0.15f, float lifeTime = 2.5f, NotiSnap snap = NotiSnap.None)
     {
         Init(notiManager);
 
-        SetPanel(backgroundColor, marginX, lineHeight);
-        SetText(text, textColor, paddingX, paddingY, fontSizeMin, fontSizeMax, horizontalAlignment, verticalAlignment);
+        this.notiSnap = snap;
 
+        SetPanel(backgroundColor, marginX, lineHeight, () =>
+        {
+            SetText(text, textColor, paddingX, paddingY, fontSizeMin, fontSizeMax, horizontalAlignment, verticalAlignment);
+        });
+        
         InitCoroutine(showTime, hideTime, lifeTime);
     }
 
-    public void SetPanel(Color backgroundColor, float marginX, float lineHeight)
+    public void SetPanel(Color backgroundColor, float marginX, float lineHeight, UnityAction actionAfterThis = null)
     {
         notiTextBackgroundPanel.color = backgroundColor;
         notiTextBackgroundPanel.rectTransform.sizeDelta = new Vector2(notiTextBackgroundPanel.rectTransform.parent.GetComponent<RectTransform>().sizeDelta.x - marginX, lineHeight);
+    
+        if(actionAfterThis != null )
+        {
+            actionAfterThis?.Invoke();
+        }
     }
 
     public void SetText(string text, Color textColor, float paddingX, float paddingY, float fontSizeMin = 18f, float fontSizeMax = 22f, HorizontalAlignmentOptions horizontalAlignment = HorizontalAlignmentOptions.Center, VerticalAlignmentOptions verticalAlignment = VerticalAlignmentOptions.Middle)
@@ -78,14 +99,22 @@ public class NotiItem: MonoBehaviour, ISubject
         notiTextArea.text = text;
         notiTextArea.color = textColor;
 
-        notiTextArea.rectTransform.sizeDelta = new Vector2(notiTextBackgroundPanel.rectTransform.sizeDelta.x,
-            notiTextBackgroundPanel.rectTransform.sizeDelta.y);
+
+        notiTextArea.rectTransform.sizeDelta = notiTextBackgroundPanel.rectTransform.sizeDelta;
+
+
+
+
 
         notiTextArea.autoSizeTextContainer = true;
         notiTextArea.horizontalAlignment = horizontalAlignment;
         notiTextArea.verticalAlignment = verticalAlignment;
         notiTextArea.fontSizeMin = 18f;
         notiTextArea.fontSizeMax = 22f;
+
+
+
+        //notiTextArea.rectTransform.parent = tempParent;
     }
 
 

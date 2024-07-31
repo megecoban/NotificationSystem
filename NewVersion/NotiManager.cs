@@ -19,6 +19,8 @@ public class NotiManager : MonoBehaviour, IObserver
     [SerializeField][Range(0.0001f, 6f)] private float notiItemHideSeconds = 0.15f;
     [SerializeField][Range(0.0001f, 6f)] private float notiItemRiseSeconds = 0.1f;
     [SerializeField][Range(0.0001f, 1080f)] private float notiItemPanelLineHeight = 48f;
+    [SerializeField][Range(10f, 32f)] private float fontSizeMax = 22f;
+    [SerializeField][Range(10f, 32f)] private float fontSizeMin = 18f;
 
     [Header("Text Margins And Paddings")]
     [SerializeField][Range(0f, 1080f)] private float notiItemMarginY = 20f;
@@ -59,7 +61,7 @@ public class NotiManager : MonoBehaviour, IObserver
 
         notiItems.Add(newNotiItem);
 
-        newNotiItem.Set(this, text, textColor: textColor, paddingX: notiItemPaddingX, paddingY: notiItemPaddingY, backgroundColor: backgroundColor, horizontalAlignment: textHorizontalAlignment, marginX: notiItemMarginX, verticalAlignment: textVerticalAlignment, lineHeight: notiItemPanelLineHeight, lifeTime: lifeTime, showTime: notiItemShowSeconds, hideTime: notiItemHideSeconds);
+        newNotiItem.Set(this, text, fontSizeMin: fontSizeMin, fontSizeMax: fontSizeMax, textColor: textColor, paddingX: notiItemPaddingX, paddingY: notiItemPaddingY, backgroundColor: backgroundColor, horizontalAlignment: textHorizontalAlignment, marginX: notiItemMarginX, verticalAlignment: textVerticalAlignment, lineHeight: notiItemPanelLineHeight, lifeTime: lifeTime, showTime: notiItemShowSeconds, hideTime: notiItemHideSeconds);
 
         SetAllPos();
     }
@@ -78,11 +80,11 @@ public class NotiManager : MonoBehaviour, IObserver
 
     public void CheckNotiSizeAndClear()
     {
-        if (notiItems.Count > maxNotiItemSameTime)
+        if (notiItems.Count >= maxNotiItemSameTime)
         {
             int willRemoveCount = notiItems.Count - maxNotiItemSameTime;
 
-            for (int i = 0; i < willRemoveCount; i++)
+            for (int i = 0; i <= willRemoveCount; i++)
             {
                 if (notiItems[i] != null)
                 {
