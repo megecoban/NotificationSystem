@@ -10,6 +10,7 @@ Notification System For Unity
 - Appearance and disappearance effects
 - Displaying a specific number of notifications simultaneously
 - Removing old notifications and automatically adjusting the positions of notifications when a new one arrives
+- Set vertical offset for first added NotiItem (Added with 1st update)
 
 ## To Do
 - Document
