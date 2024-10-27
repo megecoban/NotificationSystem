@@ -1,9 +1,6 @@
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UIElements;
 
 public class NotiManager : MonoBehaviour, IObserver
 {
@@ -27,6 +24,9 @@ public class NotiManager : MonoBehaviour, IObserver
     [SerializeField][Range(0f, 1080f)] private float notiItemMarginX = 20f;
     [SerializeField][Range(0f, 1080f)] private float notiItemPaddingY = 20f;
     [SerializeField][Range(0f, 1080f)] private float notiItemPaddingX = 20f;
+
+    [Header("Offset")]
+    [SerializeField][Range(0f, 1080f)] private float notiItemOffsetY = 20f;
 
     [Header("Text Alignments")]
     [SerializeField] private HorizontalAlignmentOptions textHorizontalAlignment = HorizontalAlignmentOptions.Center;
@@ -73,7 +73,7 @@ public class NotiManager : MonoBehaviour, IObserver
             int val = notiItems.Count - 1 - i;
             if (notiItems[val] != null)
             {
-                notiItems[val]?.SetNewPosY(i * (notiItemPanelLineHeight + notiItemMarginY), notiItemRiseSeconds);
+                notiItems[val]?.SetNewPosY(notiItemOffsetY + (i * (notiItemPanelLineHeight + notiItemMarginY)), notiItemRiseSeconds);
             }
         }
     }
